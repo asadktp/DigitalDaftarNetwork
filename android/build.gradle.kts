@@ -1,9 +1,5 @@
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// Repositories are managed in settings.gradle.kts
+
 
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
