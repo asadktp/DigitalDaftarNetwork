@@ -56,7 +56,7 @@ void main() async {
   }
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [ChangeNotifierProvider(create: (context) => AuthProvider())],
       child: const DigitalDaftarApp(),
     ),
   );
@@ -66,9 +66,10 @@ final _router = GoRouter(
   initialLocation: '/splash',
   routes: [
     // ── Auth Flow ─────────────────────────────────────────────
-    GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
-    GoRoute(path: '/welcome', builder: (_, _) => const WelcomeScreen()),
-    GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+    GoRoute(
+        path: '/welcome', builder: (context, state) => const WelcomeScreen()),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: '/register',
       builder: (context, state) =>
@@ -76,16 +77,21 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/pending',
-      builder: (_, _) => const PendingApprovalScreen(),
+      builder: (context, state) => const PendingApprovalScreen(),
     ),
 
     // ── Donor Flow ─────────────────────────────────────────────
-    GoRoute(path: '/donor', builder: (_, _) => const DonorDashboardScreen()),
-    GoRoute(path: '/orgs', builder: (_, _) => const OrgDirectoryScreen()),
-    GoRoute(path: '/donate', builder: (_, _) => const DonationFlowScreen()),
+    GoRoute(
+        path: '/donor',
+        builder: (context, state) => const DonorDashboardScreen()),
+    GoRoute(
+        path: '/orgs', builder: (context, state) => const OrgDirectoryScreen()),
+    GoRoute(
+        path: '/donate',
+        builder: (context, state) => const DonationFlowScreen()),
     GoRoute(
       path: '/donor/history',
-      builder: (_, _) => const DonationHistoryScreen(),
+      builder: (context, state) => const DonationHistoryScreen(),
     ),
 
     // ── Admin Flow ─────────────────────────────────────────────
@@ -127,16 +133,17 @@ final _router = GoRouter(
     // ── Super Admin ─────────────────────────────────────────────
     GoRoute(
       path: '/super-admin',
-      builder: (_, _) => const SuperAdminDashboard(),
+      builder: (context, state) => const SuperAdminDashboard(),
     ),
 
     // ── Shared ─────────────────────────────────────────────────
-    GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
+    GoRoute(
+        path: '/settings', builder: (context, state) => const SettingsScreen()),
 
     // ── Fallback ───────────────────────────────────────────────
     GoRoute(
       path: '/',
-      builder: (_, _) =>
+      builder: (context, state) =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
     ),
   ],

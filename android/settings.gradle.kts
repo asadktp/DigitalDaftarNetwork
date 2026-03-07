@@ -2,9 +2,12 @@
     val flutterSdkPath =
         run {
             val properties = java.util.Properties()
-            file("local.properties").inputStream().use { properties.load(it) }
-            val flutterSdkPath = properties.getProperty("flutter.sdk")
-            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
+            val propertyFile = file("local.properties")
+            if (propertyFile.exists()) {
+                propertyFile.inputStream().use { properties.load(it) }
+            }
+            val flutterSdkPath = properties.getProperty("flutter.sdk") ?: System.getenv("FLUTTER_ROOT")
+            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties and FLUTTER_ROOT not found in environment" }
             flutterSdkPath
         }
 
