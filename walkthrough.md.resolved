@@ -1,0 +1,86 @@
+# Digital Daftar Network — UI Walkthrough
+
+## Screen Map (All 30 Screens)
+
+```mermaid
+graph TD
+    A[Splash Screen] --> B[Welcome Screen]
+    B --> C[Login Screen]
+    B --> D[Register as Donor]
+    B --> E[Register Madarsa/Mosque]
+    C --> F{Role}
+    D --> F
+    E --> G[Pending Approval Screen]
+    F -- donor --> H[Donor Dashboard]
+    F -- org_admin --> I[Admin Dashboard]
+    F -- collector --> J[Collector Dashboard]
+    F -- super_admin --> K[Super Admin Dashboard]
+    H --> L[Org Directory / All Orgs]
+    H --> M[Donate Flow - 4 Steps]
+    H --> N[Donation History]
+    H --> O[Settings]
+    L --> P[Org Profile Screen]
+    P --> M
+    I --> Q[Reports Screen - Category Breakdown]
+    I --> R[Collector Management]
+    J --> S[New Collection]
+    J --> T[Daily Report]
+    K --> U[Approval Queue]
+```
+
+## Screens Built
+
+| # | Screen | File | Status |
+|---|--------|------|--------|
+| 1 | Splash Screen | [screens/auth/splash_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/auth/splash_screen.dart) | ✅ |
+| 2 | Welcome Screen | [screens/auth/welcome_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/auth/welcome_screen.dart) | ✅ |
+| 3 | Login Screen | [screens/auth/login_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/auth/login_screen.dart) | ✅ |
+| 4 | Registration Screen | [screens/auth/registration_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/auth/registration_screen.dart) | ✅ |
+| 5 | Pending Approval | [screens/auth/pending_approval_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/auth/pending_approval_screen.dart) | ✅ |
+| 6 | Donor Dashboard | [screens/donor/donor_dashboard_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/donor/donor_dashboard_screen.dart) | ✅ |
+| 7 | Org Directory | [screens/donor/org_directory_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/donor/org_directory_screen.dart) | ✅ |
+| 8 | Org Profile | [screens/donor/org_profile_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/donor/org_profile_screen.dart) | ✅ |
+| 9 | Donation Flow (4-steps) | [screens/donor/donation_flow_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/donor/donation_flow_screen.dart) | ✅ |
+| 10 | Donation History | [screens/donor/donation_history_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/donor/donation_history_screen.dart) | ✅ |
+| 11 | Admin Dashboard | [screens/admin/admin_dashboard.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/admin/admin_dashboard.dart) | ✅ |
+| 12 | Reports + Category Breakdown | [screens/admin/reports_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/admin/reports_screen.dart) | ✅ |
+| 13 | Collector Management | [screens/admin/collector_management_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/admin/collector_management_screen.dart) | ✅ |
+| 14 | Collector Dashboard | [screens/collector/collector_dashboard_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/collector/collector_dashboard_screen.dart) | ✅ |
+| 15 | New Collection (Intake) | [screens/collector/collector_intake_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/collector/collector_intake_screen.dart) | ✅ |
+| 16 | Daily Report | [screens/collector/daily_report_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/collector/daily_report_screen.dart) | ✅ |
+| 17 | Super Admin Dashboard | [screens/super_admin/super_admin_dashboard.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/super_admin/super_admin_dashboard.dart) | ✅ |
+| 18 | Settings | [screens/settings_screen.dart](file:///c:/Users/asadm/Desktop/Digital%20Daftar%20Network/lib/screens/settings_screen.dart) | ✅ |
+
+## Route Map
+
+| Route | Screen |
+|-------|--------|
+| `/splash` | SplashScreen |
+| `/welcome` | WelcomeScreen |
+| `/login` | LoginScreen |
+| `/register?role=donor` | RegistrationScreen (Donor) |
+| `/register?role=org_admin` | RegistrationScreen (Org Admin) |
+| `/pending` | PendingApprovalScreen |
+| `/donor` | DonorDashboardScreen |
+| `/orgs` | OrgDirectoryScreen |
+| `/donate` | DonationFlowScreen (4-step) |
+| `/donor/history` | DonationHistoryScreen |
+| `/admin/:orgId` | AdminDashboard |
+| `/admin/:orgId/reports` | ReportsScreen |
+| `/admin/:orgId/collectors` | CollectorManagement |
+| `/collector/:orgId` | CollectorDashboard |
+| `/collector/intake/:orgId` | CollectorIntakeScreen |
+| `/collector/report/:orgId` | DailyReportScreen |
+| `/super-admin` | SuperAdminDashboard |
+| `/settings` | SettingsScreen |
+
+## Key UI Features
+
+### Donation Category Logic
+- **Madarsa**: Zakat ✅ · Sadaqah ✅ · Lillah ✅ · Imdad ✅ · General ✅  
+- **Mosque**: Zakat ❌ · Sadaqah ❌ · Lillah ✅ · Imdad ✅ · General ✅
+
+### Theme
+- Primary: `#006837` (Emerald Green)
+- Accent: `#D4AF37` (Islamic Gold)
+- Gradient: `#004D2E` → `#006837`

@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper Functions ──────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
+    }
+
+    function isOrgAdmin(orgId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'org_admin' &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == orgId;
+    }
+
+    function isCollector(orgId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'collector' &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == orgId;
+    }
+
+    function isDonor() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'donor';
+    }
+
+    function userBelongsToOrg(orgId) {
+      return isOrgAdmin(orgId) || isCollector(orgId);
+    }
+
+    // ─── users ────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Apna profile read kar sakte hain
+      allow read: if isSignedIn() && (request.auth.uid == userId || isSuperAdmin());
+      // Naya account create karte waqt
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      // Sirf super_admin update kar sakta hai role/status
+      allow update: if isSignedIn() && (
+        request.auth.uid == userId ||
+        isSuperAdmin()
+      );
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── organizations ────────────────────────────────────────────────────
+    match /organizations/{orgId} {
+      // Koi bhi sign-in user read kar sakta hai (for org directory)
+      allow read: if isSignedIn();
+      // Naya org create — koi bhi sign-in user (registration flow)
+      allow create: if isSignedIn();
+      // Update — sirf us org ka admin ya super_admin
+      allow update: if isOrgAdmin(orgId) || isSuperAdmin();
+      // Delete — sirf super_admin
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── donations ────────────────────────────────────────────────────────
+    match /donations/{donationId} {
+      // Org ke andar log read kar sakte hain
+      allow read: if isSignedIn() && (
+        userBelongsToOrg(resource.data.organizationId) ||
+        request.auth.uid == resource.data.donorId ||
+        isSuperAdmin()
+      );
+      // Collector ya org_admin create kar sakte hain
+      allow create: if isSignedIn() && (
+        userBelongsToOrg(request.resource.data.organizationId) ||
+        isDonor()
+      );
+      // Update sirf org_admin ya super_admin kar sakta hai
+      allow update: if isOrgAdmin(resource.data.organizationId) || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── expenses ─────────────────────────────────────────────────────────
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn() && (
+        userBelongsToOrg(resource.data.organizationId) ||
+        isSuperAdmin()
+      );
+      // Collector sirf travel expense add kar sakta hai
+      allow create: if isSignedIn() && (
+        isOrgAdmin(request.resource.data.organizationId) ||
+        isCollector(request.resource.data.organizationId) ||
+        isSuperAdmin()
+      );
+      allow update: if isOrgAdmin(resource.data.organizationId) || isSuperAdmin();
+      allow delete: if isOrgAdmin(resource.data.organizationId) || isSuperAdmin();
+    }
+
+    // ─── collectors ───────────────────────────────────────────────────────
+    match /collectors/{collectorId} {
+      allow read: if isSignedIn() && (
+        userBelongsToOrg(resource.data.organizationId) ||
+        isSuperAdmin()
+      );
+      allow create: if isOrgAdmin(request.resource.data.organizationId) || isSuperAdmin();
+      allow update: if isOrgAdmin(resource.data.organizationId) || isSuperAdmin();
+      allow delete: if isOrgAdmin(resource.data.organizationId) || isSuperAdmin();
+    }
+
+    // ─── subscriptions ────────────────────────────────────────────────────
+    match /subscriptions/{orgId} {
+      allow read: if isSignedIn() && (
+        isOrgAdmin(orgId) ||
+        isSuperAdmin()
+      );
+      // Sirf super_admin subscription manage karta hai
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── org_summaries ────────────────────────────────────────────────────
+    match /org_summaries/{orgId} {
+      allow read: if isSignedIn() && (
+        userBelongsToOrg(orgId) ||
+        isSuperAdmin()
+      );
+      // Sirf backend/admin update karta hai summaries
+      allow write: if isOrgAdmin(orgId) || isSuperAdmin();
+    }
+
+  }
+}
