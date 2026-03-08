@@ -116,10 +116,8 @@ class OrgRepository {
           .where('status', isEqualTo: 'approved')
           .get();
 
-      List<Organization> orgs = snapshot.docs
-          .map(
-              (doc) => Organization.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+      List<Organization> orgs =
+          snapshot.docs.map((doc) => Organization.fromMap(doc.data())).toList();
 
       return orgs.where((org) {
         double distance = Geolocator.distanceBetween(

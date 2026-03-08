@@ -53,9 +53,7 @@ class ExpenseRepository {
           .orderBy('date', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => Expense.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+      return snapshot.docs.map((doc) => Expense.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Firestore Error in getExpenses: $e');
       return _mockExpenses;

@@ -53,9 +53,7 @@ class DonationRepository {
           .orderBy('timestamp', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => Donation.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+      return snapshot.docs.map((doc) => Donation.fromMap(doc.data())).toList();
     } catch (e) {
       debugPrint('Firestore Error in getDonationHistory: $e');
       return _mockDonations;
