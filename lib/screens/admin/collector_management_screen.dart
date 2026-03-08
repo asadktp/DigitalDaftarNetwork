@@ -13,9 +13,7 @@ class CollectorManagementScreen extends StatefulWidget {
 }
 
 class _CollectorManagementScreenState extends State<CollectorManagementScreen> {
-  final CollectorRepository _repo = AppConstants.useDummyData
-      ? MockCollectorRepository()
-      : CollectorRepository();
+  final CollectorRepository _repo = CollectorRepository();
   List<Collector>? _collectors;
 
   @override

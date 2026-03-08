@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/organization.dart';
 import '../../repositories/org_repository.dart';
-import '../../repositories/mock_org_repository.dart';
 import '../../core/constants.dart';
 
 class OrgDirectoryScreen extends StatefulWidget {
@@ -13,9 +12,7 @@ class OrgDirectoryScreen extends StatefulWidget {
 }
 
 class _OrgDirectoryScreenState extends State<OrgDirectoryScreen> {
-  final OrgRepository _repo = AppConstants.useDummyData
-      ? MockOrgRepository()
-      : OrgRepository();
+  final OrgRepository _repo = OrgRepository();
   List<Organization>? _organizations;
   String _searchQuery = '';
 

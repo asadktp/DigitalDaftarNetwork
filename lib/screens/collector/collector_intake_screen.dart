@@ -4,7 +4,6 @@ import '../../core/constants.dart';
 import '../../models/donation.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/donation_repository.dart';
-import '../../repositories/mock_donation_repository.dart';
 
 class CollectorIntakeScreen extends StatefulWidget {
   final String orgId;
@@ -29,9 +28,7 @@ class _CollectorIntakeScreenState extends State<CollectorIntakeScreen> {
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final donationRepo = AppConstants.useDummyData
-          ? MockDonationRepository()
-          : DonationRepository();
+      final donationRepo = DonationRepository();
 
       final donation = Donation(
         donationId: 'don_${DateTime.now().millisecondsSinceEpoch}',
@@ -97,9 +94,9 @@ class _CollectorIntakeScreenState extends State<CollectorIntakeScreen> {
                 'New Collection',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppConstants.primaryGreen,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: AppConstants.primaryGreen,
+                    ),
               ),
               const SizedBox(height: 32),
               TextFormField(

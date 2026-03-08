@@ -6,9 +6,7 @@ import '../../models/donation.dart';
 import '../../models/organization.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/donation_repository.dart';
-import '../../repositories/mock_donation_repository.dart';
 import '../../repositories/org_repository.dart';
-import '../../repositories/mock_org_repository.dart';
 
 class DonationFlowScreen extends StatefulWidget {
   const DonationFlowScreen({super.key});
@@ -29,9 +27,7 @@ class _DonationFlowScreenState extends State<DonationFlowScreen> {
   String _paymentMethod = 'UPI';
   bool _isLoading = false;
 
-  final OrgRepository _orgRepo = AppConstants.useDummyData
-      ? MockOrgRepository()
-      : OrgRepository();
+  final OrgRepository _orgRepo = OrgRepository();
 
   List<Organization> _filteredOrgs = [];
   bool _orgsLoading = false;
@@ -65,9 +61,7 @@ class _DonationFlowScreenState extends State<DonationFlowScreen> {
     setState(() => _isLoading = true);
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final donationRepo = AppConstants.useDummyData
-        ? MockDonationRepository()
-        : DonationRepository();
+    final donationRepo = DonationRepository();
 
     final donation = Donation(
       donationId: 'don_${DateTime.now().millisecondsSinceEpoch}',
@@ -289,52 +283,56 @@ class _DonationFlowScreenState extends State<DonationFlowScreen> {
           child: _orgsLoading
               ? const Center(child: CircularProgressIndicator())
               : _filteredOrgs.isEmpty
-              ? const Center(child: Text('No organizations found.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  itemCount: _filteredOrgs.length,
-                  itemBuilder: (ctx, i) {
-                    final org = _filteredOrgs[i];
-                    final selected =
-                        _selectedOrg?.organizationId == org.organizationId;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: selected
-                              ? AppConstants.primaryGreen
-                              : Colors.transparent,
-                          width: 2,
-                        ),
+                  ? const Center(child: Text('No organizations found.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppConstants.primaryGreen.withValues(
-                            alpha: 0.1,
+                      itemCount: _filteredOrgs.length,
+                      itemBuilder: (ctx, i) {
+                        final org = _filteredOrgs[i];
+                        final selected =
+                            _selectedOrg?.organizationId == org.organizationId;
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: selected
+                                  ? AppConstants.primaryGreen
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
                           ),
-                          child: Icon(
-                            org.type == 'madarsa' ? Icons.school : Icons.mosque,
-                            color: AppConstants.primaryGreen,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor:
+                                  AppConstants.primaryGreen.withValues(
+                                alpha: 0.1,
+                              ),
+                              child: Icon(
+                                org.type == 'madarsa'
+                                    ? Icons.school
+                                    : Icons.mosque,
+                                color: AppConstants.primaryGreen,
+                              ),
+                            ),
+                            title: Text(
+                              org.name,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(org.city),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              setState(() => _selectedOrg = org);
+                              _nextStep();
+                            },
                           ),
-                        ),
-                        title: Text(
-                          org.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(org.city),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          setState(() => _selectedOrg = org);
-                          _nextStep();
-                        },
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
         ),
       ],
     );

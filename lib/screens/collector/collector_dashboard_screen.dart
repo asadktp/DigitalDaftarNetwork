@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/donation_repository.dart';
-import '../../repositories/mock_donation_repository.dart';
 import '../../models/donation.dart';
 import 'package:intl/intl.dart';
 
@@ -18,9 +17,7 @@ class CollectorDashboardScreen extends StatefulWidget {
 }
 
 class _CollectorDashboardScreenState extends State<CollectorDashboardScreen> {
-  final DonationRepository _repo = AppConstants.useDummyData
-      ? MockDonationRepository()
-      : DonationRepository();
+  final DonationRepository _repo = DonationRepository();
   List<Donation>? _todayDonations;
   double _todayTotal = 0;
 
@@ -31,22 +28,32 @@ class _CollectorDashboardScreenState extends State<CollectorDashboardScreen> {
   }
 
   Future<void> _load() async {
-    final all = await _repo.getDonationHistory(widget.orgId);
-    final today = DateTime.now();
-    final todayList = all
-        .where(
-          (d) =>
-              d.isOffline &&
-              d.timestamp.year == today.year &&
-              d.timestamp.month == today.month &&
-              d.timestamp.day == today.day,
-        )
-        .toList();
-    if (mounted) {
-      setState(() {
-        _todayDonations = todayList;
-        _todayTotal = todayList.fold(0, (s, d) => s + d.amount);
-      });
+    try {
+      final all = await _repo.getDonationHistory(widget.orgId);
+      final today = DateTime.now();
+      final todayList = all
+          .where(
+            (d) =>
+                d.isOffline &&
+                d.timestamp.year == today.year &&
+                d.timestamp.month == today.month &&
+                d.timestamp.day == today.day,
+          )
+          .toList();
+      if (mounted) {
+        setState(() {
+          _todayDonations = todayList;
+          _todayTotal = todayList.fold(0, (s, d) => s + d.amount);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading collector data: $e');
+      if (mounted) {
+        setState(() {
+          _todayDonations = [];
+          _todayTotal = 0;
+        });
+      }
     }
   }
 

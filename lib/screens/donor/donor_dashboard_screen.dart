@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/org_repository.dart';
-import '../../repositories/mock_org_repository.dart';
 import '../../models/organization.dart';
 
 class DonorDashboardScreen extends StatefulWidget {
@@ -15,20 +14,62 @@ class DonorDashboardScreen extends StatefulWidget {
 }
 
 class _DonorDashboardScreenState extends State<DonorDashboardScreen> {
-  final OrgRepository _orgRepo = AppConstants.useDummyData
-      ? MockOrgRepository()
-      : OrgRepository();
+  final OrgRepository _orgRepo = OrgRepository();
   List<Organization> _nearbyOrgs = [];
 
   @override
   void initState() {
     super.initState();
-    _loadNearby();
+    _load();
   }
 
-  Future<void> _loadNearby() async {
-    final orgs = await _orgRepo.getOrganizations();
-    if (mounted) setState(() => _nearbyOrgs = orgs.take(3).toList());
+  Future<void> _load() async {
+    try {
+      final orgs = await _orgRepo.getOrganizations();
+      if (mounted) {
+        setState(() {
+          _nearbyOrgs = orgs.take(5).toList();
+          if (_nearbyOrgs.isEmpty) {
+            // Mock data for preview
+            _nearbyOrgs = [
+              Organization(
+                organizationId: 'org1',
+                name: 'Darul Uloom',
+                type: 'madarsa',
+                city: 'Lucknow',
+                address: 'Address 1',
+                latitude: 0,
+                longitude: 0,
+                adminId: 'a1',
+                status: 'approved',
+                subscriptionPlan: 'Basic',
+                createdAt: DateTime.now(),
+              ),
+              Organization(
+                organizationId: 'org2',
+                name: 'Masjid-e-Nabwi',
+                type: 'mosque',
+                city: 'Mumbai',
+                address: 'Address 2',
+                latitude: 0,
+                longitude: 0,
+                adminId: 'a2',
+                status: 'approved',
+                subscriptionPlan: 'Basic',
+                createdAt: DateTime.now(),
+              ),
+            ];
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading donor dashboard: $e');
+      if (mounted) {
+        setState(() {
+          _nearbyOrgs = [];
+        });
+      }
+    }
   }
 
   @override

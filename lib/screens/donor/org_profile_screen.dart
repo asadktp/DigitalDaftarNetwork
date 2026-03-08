@@ -2,13 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants.dart';
 import '../../models/organization.dart';
+import '../../repositories/org_repository.dart';
 
-class OrgProfileScreen extends StatelessWidget {
-  final Organization org;
-  const OrgProfileScreen({super.key, required this.org});
+class OrgProfileScreen extends StatefulWidget {
+  final String orgId;
+  const OrgProfileScreen({super.key, required this.orgId});
+
+  @override
+  State<OrgProfileScreen> createState() => _OrgProfileScreenState();
+}
+
+class _OrgProfileScreenState extends State<OrgProfileScreen> {
+  Organization? _org;
+  bool _isLoading = true;
+
+  final _repo = OrgRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final org = await _repo.getOrganization(widget.orgId);
+    if (mounted) {
+      setState(() {
+        _org = org;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (_org == null) {
+      return const Scaffold(
+          body: Center(child: Text('Organization not found.')));
+    }
+    final org = _org!;
     final categories = AppConstants.getCategoriesForOrgType(org.type);
 
     return Scaffold(

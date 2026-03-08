@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import '../../core/constants.dart';
 import '../../models/donation.dart';
 import '../../repositories/donation_repository.dart';
-import '../../repositories/mock_donation_repository.dart';
 
 class DailyReportScreen extends StatefulWidget {
   final String orgId;
@@ -14,9 +13,7 @@ class DailyReportScreen extends StatefulWidget {
 }
 
 class _DailyReportScreenState extends State<DailyReportScreen> {
-  final DonationRepository _repo = AppConstants.useDummyData
-      ? MockDonationRepository()
-      : DonationRepository();
+  final DonationRepository _repo = DonationRepository();
   List<Donation>? _donations;
   Map<String, double> _categoryBreakdown = {};
   double _totalAmount = 0;

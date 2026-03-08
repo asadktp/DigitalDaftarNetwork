@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../core/constants.dart';
 import '../../models/donation.dart';
 import '../../repositories/donation_repository.dart';
-import '../../repositories/mock_donation_repository.dart';
 
 class DonationHistoryScreen extends StatefulWidget {
   final String? orgId;
@@ -15,9 +14,7 @@ class DonationHistoryScreen extends StatefulWidget {
 }
 
 class _DonationHistoryScreenState extends State<DonationHistoryScreen> {
-  final DonationRepository _repo = AppConstants.useDummyData
-      ? MockDonationRepository()
-      : DonationRepository();
+  final DonationRepository _repo = DonationRepository();
   List<Donation>? _donations;
 
   @override
@@ -44,19 +41,20 @@ class _DonationHistoryScreenState extends State<DonationHistoryScreen> {
       body: _donations == null
           ? const Center(child: CircularProgressIndicator())
           : _donations!.isEmpty
-          ? _buildEmpty()
-          : Column(
-              children: [
-                _buildSummaryHeader(),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _donations!.length,
-                    itemBuilder: (ctx, i) => _buildDonationCard(_donations![i]),
-                  ),
+              ? _buildEmpty()
+              : Column(
+                  children: [
+                    _buildSummaryHeader(),
+                    Expanded(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _donations!.length,
+                        itemBuilder: (ctx, i) =>
+                            _buildDonationCard(_donations![i]),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 

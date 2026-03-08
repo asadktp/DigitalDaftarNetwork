@@ -6,7 +6,6 @@ import '../../models/app_user.dart';
 import '../../models/organization.dart';
 import '../../providers/auth_provider.dart';
 import '../../repositories/org_repository.dart';
-import '../../repositories/mock_org_repository.dart';
 
 class RegistrationScreen extends StatefulWidget {
   final String? initialRole;
@@ -39,12 +38,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final orgRepo = AppConstants.useDummyData
-          ? MockOrgRepository()
-          : OrgRepository();
+      final orgRepo = OrgRepository();
 
-      final userId =
-          authProvider.currentFirebaseUser?.uid ??
+      final userId = authProvider.currentFirebaseUser?.uid ??
           'user_${DateTime.now().millisecondsSinceEpoch}';
 
       final userData = AppUser(
@@ -115,9 +111,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Text(
                 'Create Your Profile',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppConstants.primaryGreen,
-                  fontWeight: FontWeight.bold,
-                ),
+                      color: AppConstants.primaryGreen,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 32),
               DropdownButtonFormField<String>(

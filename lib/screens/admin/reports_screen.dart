@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../core/constants.dart';
 import '../../models/expense.dart';
 import '../../repositories/expense_repository.dart';
-import '../../repositories/mock_finance_repositories.dart';
 import '../../repositories/donation_repository.dart';
 import '../../models/donation.dart';
 
@@ -16,12 +15,8 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
-  final ExpenseRepository _expRepo = AppConstants.useDummyData
-      ? MockExpenseRepository()
-      : ExpenseRepository();
-  final DonationRepository _donRepo = AppConstants.useDummyData
-      ? MockDonationRepository()
-      : DonationRepository();
+  final ExpenseRepository _expRepo = ExpenseRepository();
+  final DonationRepository _donRepo = DonationRepository();
 
   List<Expense>? _expenses;
   List<Donation>? _donations;

@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'providers/auth_provider.dart';
 import 'core/constants.dart';
 import 'core/theme.dart';
-import 'core/firebase_seeder.dart';
+import 'screens/donor/org_profile_screen.dart';
 
 // Auth screens
 import 'screens/auth/splash_screen.dart';
@@ -38,21 +38,10 @@ import 'screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!AppConstants.useDummyData) {
-    try {
-      await Firebase.initializeApp();
-      // 🌱 DEV ONLY: Firestore mein test data seed karo
-      // Seed ho jane ke baad runSeederOnStart = false karo!
-      if (AppConstants.runSeederOnStart) {
-        await FirebaseSeeder.seedAll();
-      }
-    } catch (e) {
-      // Web par Firebase initialize nahi ho pa raha — dummy mode pe fallback
-      debugPrint('⚠️ Firebase init failed: $e');
-      debugPrint(
-        '💡 Tip: Android/iOS device use karo Firebase testing ke liye',
-      );
-    }
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('⚠️ Firebase init failed: $e');
   }
   runApp(
     MultiProvider(
@@ -86,6 +75,11 @@ final _router = GoRouter(
         builder: (context, state) => const DonorDashboardScreen()),
     GoRoute(
         path: '/orgs', builder: (context, state) => const OrgDirectoryScreen()),
+    GoRoute(
+      path: '/orgs/:orgId',
+      builder: (context, state) =>
+          OrgProfileScreen(orgId: state.pathParameters['orgId']!),
+    ),
     GoRoute(
         path: '/donate',
         builder: (context, state) => const DonationFlowScreen()),

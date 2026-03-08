@@ -58,9 +58,5 @@ class AppConstants {
   static const Color surfaceDark = Color(0xFF1E1E1E);
 
   // Mock Data Flag
-  static const bool useDummyData = true; // Web testing ke liye mock data
-
-  // DEV ONLY: Pehli baar Firestore seed karne ke liye true karo.
-  // Seed ho jane ke baad isko false kar lo!
-  static const bool runSeederOnStart = false;
+  static const bool useDummyData = false;
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import '../../core/constants.dart';
 import '../../models/organization.dart';
 import '../../repositories/org_repository.dart';
-import '../../repositories/mock_org_repository.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
   const SuperAdminDashboard({super.key});
@@ -13,9 +11,7 @@ class SuperAdminDashboard extends StatefulWidget {
 }
 
 class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
-  final OrgRepository _repo = AppConstants.useDummyData
-      ? MockOrgRepository()
-      : OrgRepository();
+  final OrgRepository _repo = OrgRepository();
   List<Organization> _pendingOrgs = [];
   bool _isLoading = true;
 
@@ -27,27 +23,62 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
 
   Future<void> _loadPendingOrganizations() async {
     setState(() => _isLoading = true);
-    // In a real app, this would be a filtered query. For dummy mode, we filter the mock list.
-    final allOrgs = await _repo.getNearbyOrganizations(
-      Position(
-        latitude: 0,
-        longitude: 0,
-        timestamp: DateTime.now(),
-        accuracy: 0,
-        altitude: 0,
-        heading: 0,
-        speed: 0,
-        speedAccuracy: 0,
-        altitudeAccuracy: 0,
-        headingAccuracy: 0,
-      ),
-      10000,
-    );
-
-    setState(() {
-      _pendingOrgs = allOrgs.where((o) => o.status == 'pending').toList();
-      _isLoading = false;
-    });
+    try {
+      final allOrgs = await _repo.getOrganizations();
+      if (allOrgs.isEmpty) {
+        // Fallback for preview
+        _pendingOrgs = [
+          Organization(
+            organizationId: 'org_mock_1',
+            name: 'Demo Madarsa',
+            type: 'madarsa',
+            city: 'Mumbai',
+            address: 'Andheri West',
+            latitude: 0,
+            longitude: 0,
+            adminId: 'admin1',
+            status: 'pending',
+            subscriptionPlan: 'Basic',
+            createdAt: DateTime.now(),
+          ),
+          Organization(
+            organizationId: 'org_mock_2',
+            name: 'Demo Mosque',
+            type: 'mosque',
+            city: 'Delhi',
+            address: 'Old Delhi',
+            latitude: 0,
+            longitude: 0,
+            adminId: 'admin2',
+            status: 'pending',
+            subscriptionPlan: 'Basic',
+            createdAt: DateTime.now(),
+          ),
+        ];
+      } else {
+        _pendingOrgs = allOrgs.where((o) => o.status == 'pending').toList();
+      }
+    } catch (e) {
+      debugPrint('Error loading orgs: $e');
+      // Show mock data on error for visual testing
+      _pendingOrgs = [
+        Organization(
+          organizationId: 'err_mock',
+          name: 'Preview Mode (Data Load Error)',
+          type: 'madarsa',
+          city: 'Check Firebase Logs',
+          address: 'Index might be missing',
+          latitude: 0,
+          longitude: 0,
+          adminId: 'error',
+          status: 'pending',
+          subscriptionPlan: 'Basic',
+          createdAt: DateTime.now(),
+        ),
+      ];
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _handleApproval(String orgId, String decision) async {
@@ -92,8 +123,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   Text(
                     'Pending Approvals (${_pendingOrgs.length})',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 16),
                   if (_pendingOrgs.isEmpty)

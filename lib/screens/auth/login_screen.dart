@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants.dart';
+import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,30 +14,56 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
+  String? _verificationId;
   bool _codeSent = false;
   bool _isLoading = false;
 
   void _handleSendOTP() {
-    if (_phoneController.text.trim().isEmpty) {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter your mobile number')),
       );
       return;
     }
-    if (AppConstants.useDummyData) {
-      setState(() => _codeSent = true);
-      return;
-    }
-    setState(() => _codeSent = true);
+
+    setState(() => _isLoading = true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    authProvider.verifyPhone(
+      phoneNumber: '+91$phone',
+      onCodeSent: (verificationId) {
+        setState(() {
+          _verificationId = verificationId;
+          _codeSent = true;
+          _isLoading = false;
+        });
+      },
+      onFailed: (e) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Verification failed: ${e.message}')),
+        );
+      },
+    );
   }
 
-  void _handleVerifyOTP() {
+  void _handleVerifyOTP() async {
+    if (_verificationId == null) return;
     setState(() => _isLoading = true);
-    if (AppConstants.useDummyData) {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) context.go('/donor');
-      });
-      return;
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.signInWithCode(_verificationId!, _otpController.text);
+      if (mounted) context.go('/splash');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Invalid OTP: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -293,41 +321,39 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              if (AppConstants.useDummyData) ...[
-                const Divider(),
-                const SizedBox(height: 16),
-                const Text(
-                  '🛠️ DEVELOPER: Quick Role Switch',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                '🛠️ DEVELOPER: Quick Role Switch (Temporary)',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _RoleButton(
+                    label: 'Donor',
+                    onPressed: () => context.go('/donor'),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _RoleButton(
-                      label: 'Donor',
-                      onPressed: () => context.go('/donor'),
-                    ),
-                    _RoleButton(
-                      label: 'Admin',
-                      onPressed: () => context.go('/admin/org1'),
-                    ),
-                    _RoleButton(
-                      label: 'Collector',
-                      onPressed: () => context.go('/collector/org1'),
-                    ),
-                    _RoleButton(
-                      label: 'Super Admin',
-                      onPressed: () => context.go('/super-admin'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-              ],
+                  _RoleButton(
+                    label: 'Admin',
+                    onPressed: () => context.go('/admin/org1'),
+                  ),
+                  _RoleButton(
+                    label: 'Collector',
+                    onPressed: () => context.go('/collector/org1'),
+                  ),
+                  _RoleButton(
+                    label: 'Super Admin',
+                    onPressed: () => context.go('/super-admin'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
