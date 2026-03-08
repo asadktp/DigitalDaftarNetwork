@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.digitaldaftar.digital_daftar_network"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
